@@ -10,9 +10,10 @@ class Window(tk.Tk):
         self.active_action = "Add Node"
         self.position_window()
         self.create_widgets()
-        self.graph = Graph.Graph(self)
         self.circles = []
         self.source_node = None
+        self.output_text = self.create_output_text()
+        self.graph = Graph.Graph(self)
 
     def create_window(self):
         self.geometry("780x700")
@@ -20,6 +21,19 @@ class Window(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=0)
+
+    def create_output_text(self):  # New function
+        output_text = tk.Text(self, wrap=tk.WORD, height=10, padx=5, pady=5, relief='sunken')
+        output_text.grid(column=0, row=2, sticky='nsew')
+        output_text.insert(tk.END, "Messages:\n")
+        output_text.config(state=tk.DISABLED)  # Make the text widget read-only
+        return output_text
+
+    def print_to_gui(self, message):
+        self.output_text.config(state=tk.NORMAL)  # Enable editing
+        self.output_text.insert(tk.END, message + "\n")  # Append the message
+        self.output_text.config(state=tk.DISABLED)  # Disable editing
+        self.output_text.see(tk.END)  # Scroll to the end
 
     def position_window(self):
         window_width = 780
@@ -36,6 +50,7 @@ class Window(tk.Tk):
     def create_widgets(self):
         self.create_canvas()
         self.create_buttons()
+        self.create_output_text()
 
     def create_canvas(self):
         self.canvas = tk.Canvas(self, bg="white", bd=5, relief='groove', width=500, height=500)
@@ -79,13 +94,19 @@ class Window(tk.Tk):
     def handle_dedge_button(self):
         self.active_action = "Delete Edge"
 
+    def clear_message_box(self):
+        self.output_text.config(state=tk.NORMAL)
+        self.output_text.delete(2.0, tk.END)
+        self.output_text.config(state=tk.DISABLED)
+
     def handle_pgraph_button(self):
-        print("\nV(G):")
+        self.clear_message_box()
+        self.print_to_gui("\nV(G):")
         for node in self.graph.node_list:
-            print(node)
-        print("E(G):")
+            self.print_to_gui(node.__str__())
+        self.print_to_gui("E(G):")
         for edge in self.graph.edge_list:
-            print(edge)
+            self.print_to_gui(edge.__str__())
 
     def handle_clear_button(self):
         self.graph.delete_graph()
