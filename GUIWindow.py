@@ -14,6 +14,7 @@ class Window(tk.Tk):
         self.source_node = None
         self.output_text = self.create_output_text()
         self.graph = Graph.Graph(self)
+        self.highlighted_node = None
 
     def create_window(self):
         self.geometry("780x700")
@@ -56,25 +57,28 @@ class Window(tk.Tk):
         self.canvas = tk.Canvas(self, bg="white", bd=5, relief='groove', width=500, height=500)
         self.canvas.grid(column=0, row=0, sticky='nsew')
         self.canvas.bind('<Button-1>', self.handle_click)
+        self.canvas.bind('<Motion>', self.handle_motion)
 
     def create_buttons(self):
         buttons_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
         buttons_frame.grid(column=0, row=1, columnspan=2)
 
-        add_node_button = tk.Button(buttons_frame, text="Add Node",padx=5, pady=5, command=self.handle_inode_button)
-        add_node_button.grid(column=0, row=0,padx=5)
+        add_node_button = tk.Button(buttons_frame, text="Add Node", padx=5, pady=5, command=self.handle_inode_button)
+        add_node_button.grid(column=0, row=0, padx=5)
 
-        add_edge_button = tk.Button(buttons_frame, text="Add Edge",padx=5, pady=5, command=self.handle_iedge_button)
+        add_edge_button = tk.Button(buttons_frame, text="Add Edge", padx=5, pady=5, command=self.handle_iedge_button)
         add_edge_button.grid(column=1, row=0, padx=5)
 
-        delete_node_button = tk.Button(buttons_frame, text="Delete Node",padx=5, pady=5, command=self.handle_dnode_button)
-        delete_node_button.grid(column=2, row=0,padx=5)
+        delete_node_button = tk.Button(buttons_frame, text="Delete Node", padx=5, pady=5,
+                                       command=self.handle_dnode_button)
+        delete_node_button.grid(column=2, row=0, padx=5)
 
-        print_graph_button = tk.Button(buttons_frame, text="Print Graph",padx=5, pady=5, command=self.handle_pgraph_button)
-        print_graph_button.grid(column=3, row=0,padx=5)
+        print_graph_button = tk.Button(buttons_frame, text="Print Graph", padx=5, pady=5,
+                                       command=self.handle_pgraph_button)
+        print_graph_button.grid(column=3, row=0, padx=5)
 
-        clear_button = tk.Button(buttons_frame, text="Clear",padx=5, pady=5, command=self.handle_clear_button)
-        clear_button.grid(column=4, row=0,padx=5)
+        clear_button = tk.Button(buttons_frame, text="Clear", padx=5, pady=5, command=self.handle_clear_button)
+        clear_button.grid(column=4, row=0, padx=5)
 
     def draw_node(self, event):
         x = event.x
@@ -111,6 +115,21 @@ class Window(tk.Tk):
     def handle_clear_button(self):
         self.graph.delete_graph()
         print("Deleted graph.")
+
+    def handle_motion(self, event):
+        node_circle_id = self.graph.find_node_in_radius(event.x, event.y)
+
+        if node_circle_id >= 0:
+            if self.highlighted_node != node_circle_id:
+                if self.highlighted_node is not None:
+                    self.canvas.itemconfigure(self.highlighted_node, fill='white')
+
+                self.canvas.itemconfigure(node_circle_id, fill='red')
+                self.highlighted_node = node_circle_id
+        else:
+            if self.highlighted_node is not None:
+                self.canvas.itemconfigure(self.highlighted_node, fill='white')
+                self.highlighted_node = None
 
     def draw_edge(self, dest_id):
         source_x, source_y = self.graph.find_node_by_id(self.source_node)
