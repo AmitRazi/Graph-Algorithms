@@ -61,20 +61,20 @@ class Window(tk.Tk):
         buttons_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
         buttons_frame.grid(column=0, row=1, columnspan=2)
 
-        add_node_button = tk.Button(buttons_frame, text="Add Node", command=self.handle_inode_button)
-        add_node_button.grid(column=0, row=0)
+        add_node_button = tk.Button(buttons_frame, text="Add Node",padx=5, pady=5, command=self.handle_inode_button)
+        add_node_button.grid(column=0, row=0,padx=5)
 
-        add_edge_button = tk.Button(buttons_frame, text="Add Edge", command=self.handle_iedge_button)
+        add_edge_button = tk.Button(buttons_frame, text="Add Edge",padx=5, pady=5, command=self.handle_iedge_button)
         add_edge_button.grid(column=1, row=0, padx=5)
 
-        delete_node_button = tk.Button(buttons_frame, text="Delete Node", command=self.handle_dnode_button)
-        delete_node_button.grid(column=2, row=0)
+        delete_node_button = tk.Button(buttons_frame, text="Delete Node",padx=5, pady=5, command=self.handle_dnode_button)
+        delete_node_button.grid(column=2, row=0,padx=5)
 
-        print_graph_button = tk.Button(buttons_frame, text="Print Graph", command=self.handle_pgraph_button)
-        print_graph_button.grid(column=3, row=0)
+        print_graph_button = tk.Button(buttons_frame, text="Print Graph",padx=5, pady=5, command=self.handle_pgraph_button)
+        print_graph_button.grid(column=3, row=0,padx=5)
 
-        clear_button = tk.Button(buttons_frame, text="Clear", command=self.handle_clear_button)
-        clear_button.grid(column=4, row=0, padx=5)
+        clear_button = tk.Button(buttons_frame, text="Clear",padx=5, pady=5, command=self.handle_clear_button)
+        clear_button.grid(column=4, row=0,padx=5)
 
     def draw_node(self, event):
         x = event.x
