@@ -1,6 +1,6 @@
 class Node:
-    def __init__(self, id, x, y):
-        self._circle_id = id
+    def __init__(self, x, y,circle_id):
+        self._circle_id = circle_id
         self._x = x
         self._y = y
         self._radius = 20

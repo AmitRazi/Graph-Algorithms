@@ -1,5 +1,7 @@
 import tkinter as tk
 import Graph
+import GraphNode
+import GraphEdge
 
 
 class Window(tk.Tk):
@@ -12,6 +14,7 @@ class Window(tk.Tk):
         self.create_widgets()
         self.graph = Graph.Graph()
         self.circles = []
+        self.source_node = None
 
     def create_window(self):
         self.geometry("780x700")
@@ -77,6 +80,11 @@ class Window(tk.Tk):
     def handle_clear_button(self):
         self.active_action = "Clear"
 
+    def draw_edge(self, dest_id):
+        source_x, source_y = self.graph.find_node_by_id(self.source_node)
+        dest_x, dest_y = self.graph.find_node_by_id(dest_id)
+        return self.canvas.create_line(source_x, source_y, dest_x, dest_y, fill='black', width=2)
+
     def handle_click(self, event):
         if self.active_action == "Add Node":
             circle_id = self.draw_node(event)
@@ -86,7 +94,21 @@ class Window(tk.Tk):
             id_to_delete = self.graph.find_node_in_radius(event.x, event.y)
             if id_to_delete >= 0:
                 self.canvas.delete(id_to_delete)
-                self.canvas.update_idletasks()
+                edge_list = self.graph.delete_node(id_to_delete)
+                print(len(edge_list))
+                for edge in edge_list:
+                    self.canvas.delete(edge)
+
+
+        elif self.active_action == "Add Edge":
+            node_circle_id = self.graph.find_node_in_radius(event.x, event.y)
+            if node_circle_id >= 0:
+                if self.source_node is None:
+                    self.source_node = node_circle_id
+                else:
+                    edge_id = self.draw_edge(node_circle_id)
+                    self.graph.add_edge(self.source_node, node_circle_id, edge_id)
+                    self.source_node = None
 
 
 window = Window()
