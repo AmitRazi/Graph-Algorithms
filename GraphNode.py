@@ -41,10 +41,10 @@ class Node:
 
     @property
     def circle_id(self):
-        return self._id
+        return self._circle_id
 
     @circle_id.setter
-    def id(self,new_id):
+    def circle_id(self,new_id):
         self._circle_id = id
 
     @property
@@ -52,4 +52,4 @@ class Node:
         return self._radius
 
     def __str__(self):
-        return f"({self.x},{self.y} id={self._id})"
+        return f"({self.x},{self.y} id={self.circle_id})"

@@ -18,7 +18,7 @@ class Graph:
             distance = (x - node.x) ** 2 + (y - node.y) ** 2
             print(f"Click: ({x}, {y}), Node: ({node.x}, {node.y}), Distance: {distance}, Radius^2: {node.radius ** 2}")
             if distance <= node.radius ** 2:
-                node_id = node.id
+                node_id = node.circle_id
                 self.node_list.remove(node)
                 return node_id
         return -1
