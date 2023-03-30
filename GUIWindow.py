@@ -20,10 +20,15 @@ class Window(tk.Tk):
         self.rowconfigure(1, weight=0)
 
     def position_window(self):
+        window_width = 780
+        window_height = 700
+
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        x_coordinate = int((screen_width / 2) - (400 / 2))
-        y_coordinate = int((screen_height / 2) - (200 / 2))
+
+        x_coordinate = int((screen_width / 2) - (window_width / 2))
+        y_coordinate = int((screen_height / 2) - (window_height / 2))
+
         self.geometry(f"+{x_coordinate}+{y_coordinate}")
 
     def create_widgets(self):
@@ -54,7 +59,7 @@ class Window(tk.Tk):
     def draw_node(self, event):
         x = event.x
         y = event.y
-        circle_id = self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20,outline='black',width=2, fill='white')
+        circle_id = self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, outline='black', width=2, fill='white')
         return circle_id
 
     def handle_inode_button(self):
@@ -75,14 +80,13 @@ class Window(tk.Tk):
     def handle_click(self, event):
         if self.active_action == "Add Node":
             circle_id = self.draw_node(event)
-            self.graph.add_node(circle_id,event.x,event.y)
+            self.graph.add_node(circle_id, event.x, event.y)
 
         elif self.active_action == "Delete Node":
-            id_to_delete = self.graph.find_node_in_radius(event.x,event.y)
+            id_to_delete = self.graph.find_node_in_radius(event.x, event.y)
             if id_to_delete >= 0:
                 self.canvas.delete(id_to_delete)
                 self.canvas.update_idletasks()
-
 
 
 window = Window()
