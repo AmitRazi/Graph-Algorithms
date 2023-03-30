@@ -1,7 +1,5 @@
 import tkinter as tk
 import Graph
-import GraphNode
-import GraphEdge
 
 
 class Window(tk.Tk):
@@ -12,12 +10,13 @@ class Window(tk.Tk):
         self.active_action = "Add Node"
         self.position_window()
         self.create_widgets()
-        self.graph = Graph.Graph()
+        self.graph = Graph.Graph(self)
         self.circles = []
         self.source_node = None
 
     def create_window(self):
         self.geometry("780x700")
+        self.title("Hungarian Method")
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=0)
@@ -56,8 +55,11 @@ class Window(tk.Tk):
         delete_node_button = tk.Button(buttons_frame, text="Delete Node", command=self.handle_dnode_button)
         delete_node_button.grid(column=2, row=0)
 
+        print_graph_button = tk.Button(buttons_frame, text="Print Graph", command=self.handle_pgraph_button)
+        print_graph_button.grid(column=3, row=0)
+
         clear_button = tk.Button(buttons_frame, text="Clear", command=self.handle_clear_button)
-        clear_button.grid(column=3, row=0, padx=5)
+        clear_button.grid(column=4, row=0, padx=5)
 
     def draw_node(self, event):
         x = event.x
@@ -77,8 +79,17 @@ class Window(tk.Tk):
     def handle_dedge_button(self):
         self.active_action = "Delete Edge"
 
+    def handle_pgraph_button(self):
+        print("\nV(G):")
+        for node in self.graph.node_list:
+            print(node)
+        print("E(G):")
+        for edge in self.graph.edge_list:
+            print(edge)
+
     def handle_clear_button(self):
-        self.active_action = "Clear"
+        self.graph.delete_graph()
+        print("Deleted graph.")
 
     def draw_edge(self, dest_id):
         source_x, source_y = self.graph.find_node_by_id(self.source_node)
@@ -95,10 +106,9 @@ class Window(tk.Tk):
             if id_to_delete >= 0:
                 self.canvas.delete(id_to_delete)
                 edge_list = self.graph.delete_node(id_to_delete)
-                print(len(edge_list))
+                print("Deleted " + str(len(edge_list)) + " edges.")
                 for edge in edge_list:
                     self.canvas.delete(edge)
-
 
         elif self.active_action == "Add Edge":
             node_circle_id = self.graph.find_node_in_radius(event.x, event.y)

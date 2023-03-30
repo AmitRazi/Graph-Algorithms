@@ -52,4 +52,4 @@ class Node:
         return self._radius
 
     def __str__(self):
-        return f"({self.x},{self.y} id={self.circle_id})"
+        return f"Node ID {self.circle_id}: ({self.x},{self.y})"

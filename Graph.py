@@ -3,15 +3,15 @@ import GraphNode
 
 
 class Graph:
-    def __init__(self):
+    def __init__(self, gui):
         self.node_list = []
         self.edge_list = []
+        self.gui = gui
 
     def add_node(self, circle_id, x, y):
         node = GraphNode.Node(x, y, circle_id)
         self.node_list.append(node)
-        for node in self.node_list:
-            print(node)
+        print(node)
 
     def add_edge(self, source_id, dest_id, edge_id):
         source_node = None
@@ -44,6 +44,15 @@ class Graph:
 
                 return edge_ids
         return None
+
+    def delete_graph(self):
+        while self.node_list:
+            for node in self.node_list:
+                id_to_delete = self.find_node_in_radius(node.x, node.y)
+                self.gui.canvas.delete(id_to_delete)
+                edge_list = self.gui.graph.delete_node(id_to_delete)
+                for edge in edge_list:
+                    self.gui.canvas.delete(edge)
 
     def find_node_by_id(self, target_id):
         for node in self.node_list:
