@@ -1,5 +1,6 @@
 import tkinter as tk
 import Graph
+from GraphAlgorithms import GAlgorithm
 
 
 class Window(tk.Tk):
@@ -14,6 +15,7 @@ class Window(tk.Tk):
         self.source_node = None
         self.output_text = self.create_output_text()
         self.graph = Graph.Graph(self)
+        self.graph_algos = GAlgorithm(self.graph)
         self.highlighted_node = None
         self.source_node_circle_id = None
 
@@ -62,7 +64,14 @@ class Window(tk.Tk):
 
     def create_buttons(self):
         buttons_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
-        buttons_frame.grid(column=0, row=1, columnspan=2)
+        buttons_frame.grid(column=0, row=1, columnspan=2, sticky='w')
+
+        algo_button_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
+        algo_button_frame.grid(column=0, row=1, columnspan=2, sticky='e')
+
+        bipartite_button = tk.Button(algo_button_frame, text="Validate Bipartite",
+                                     command=self.check_bipartite)
+        bipartite_button.grid(column=0, row=0, padx=5, pady=5, sticky='w')
 
         add_node_button = tk.Button(buttons_frame, text="Add Node", padx=5, pady=5, command=self.handle_inode_button)
         add_node_button.grid(column=0, row=0, padx=5)
@@ -80,6 +89,11 @@ class Window(tk.Tk):
 
         clear_button = tk.Button(buttons_frame, text="Clear", padx=5, pady=5, command=self.handle_clear_button)
         clear_button.grid(column=4, row=0, padx=5)
+
+    def check_bipartite(self):
+        is_bipartite = self.graph_algos.hungarian_algorithm()
+        print(is_bipartite)
+        self.print_to_gui(f"Bipartite: {is_bipartite}")
 
     def draw_node(self, event):
         x = event.x
@@ -137,6 +151,10 @@ class Window(tk.Tk):
         source_x, source_y = self.graph.find_node_by_id(self.source_node)
         dest_x, dest_y = self.graph.find_node_by_id(dest_id)
         return self.canvas.create_line(source_x, source_y, dest_x, dest_y, fill='black', width=2)
+
+    def color_edge(self, edge_id,color:str):
+        self.canvas.itemconfigure(edge_id, fill=color)
+        self.canvas.update()
 
     def handle_choosen_action(self, event):
         if self.active_action == "Add Node":

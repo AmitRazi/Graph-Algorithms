@@ -1,24 +1,22 @@
-import GraphEdge
-import GraphNode
-
+from GraphEdge import Edge
+from GraphNode import Node
+from typing import List
 
 class Graph:
     def __init__(self, gui):
-        self.node_list = []
-        self.edge_list = []
+        self.node_list: List[Node] = []
+        self.edge_list: List[Edge] = []
         self.gui = gui
 
     def add_node(self, circle_id, x, y):
-        node = GraphNode.Node(x, y, circle_id)
+        node = Node(x, y, circle_id)
         self.node_list.append(node)
         print(node)
 
     def add_edge(self, source_id, dest_id, edge_id):
         for edge in self.edge_list:
-            if edge.source == source_id and edge.dest == dest_id:
+            if (edge.source == source_id and edge.dest == dest_id) or (edge.dest == source_id and edge.source == dest_id):
                 return
-            if edge.dest == source_id and edge.source == dest_id:
-                pass
         source_node = None
         dest_node = None
         for node in self.node_list:
@@ -28,22 +26,24 @@ class Graph:
                 dest_node = node
         if source_node is None or dest_node is None:
             return
-        edge = GraphEdge.Edge(source_node.circle_id, dest_node.circle_id, edge_id)
+        source_node.add_neighbor(dest_node)
+        dest_node.add_neighbor(source_node)
+        edge = Edge(source_node, dest_node, edge_id)
         self.edge_list.append(edge)
         for edge in self.edge_list:
             print(edge)
 
-    def delete_node(self, node_id):
+    def delete_node(self, node_id: Node):
         for node in self.node_list:
             if node.circle_id == node_id:
+                node.inform_neighbors()
                 edges_to_remove = []
                 for edge in self.edge_list:
-                    if edge.source == node_id or edge.dest == node_id:
+                    if edge.source.circle_id == node_id or edge.dest.circle_id == node_id:
                         edges_to_remove.append(edge)
 
                 for edge in edges_to_remove:
                     self.edge_list.remove(edge)
-
                 edge_ids = [edge.id for edge in edges_to_remove]
                 self.node_list.remove(node)
 
@@ -72,3 +72,11 @@ class Graph:
                 node_id = node.circle_id
                 return node_id
         return -1
+
+    def find_edge(self,source_id,dest_id):
+        for edge in self.edge_list:
+            if edge.source.circle_id == source_id and edge.dest.circle_id == dest_id or edge.dest.circle_id == source_id and edge.source.circle_id == dest_id:
+                return edge
+
+    def color_edge(self,edge: Edge, color: str):
+        self.gui.color_edge(edge.id,color)

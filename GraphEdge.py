@@ -1,14 +1,13 @@
-import GraphNode
-
+from GraphNode import Node
 
 class Edge:
-    def __init__(self, source_node, dest_node, edge_id):
+    def __init__(self, source_node: Node, dest_node: Node, edge_id: int):
         self._source = source_node
         self._dest = dest_node
         self._id = edge_id
 
     @property
-    def source(self):
+    def source(self) -> Node:
         return self._source
 
     @source.setter
@@ -21,7 +20,7 @@ class Edge:
 
     @dest.setter
     def dest(self, new_dest):
-        self.dest = new_dest
+        self._dest = new_dest
 
     @property
     def id(self):

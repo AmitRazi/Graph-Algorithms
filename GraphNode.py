@@ -4,8 +4,21 @@ class Node:
         self._x = x
         self._y = y
         self._radius = 20
-        self._color = 'blue'
+        self._color = -1
         self._group = 'None'
+        self.neighbors = []
+
+    def add_neighbor(self,neighbor):
+        self.neighbors.append(neighbor)
+
+    def remove_neighbor(self,neighbor):
+        print("removing")
+        self.neighbors.remove(neighbor)
+
+    def inform_neighbors(self):
+        for node in self.neighbors:
+            print("informing")
+            node.remove_neighbor(self)
 
     @property
     def x(self):
