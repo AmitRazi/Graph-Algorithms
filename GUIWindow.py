@@ -15,6 +15,7 @@ class Window(tk.Tk):
         self.output_text = self.create_output_text()
         self.graph = Graph.Graph(self)
         self.highlighted_node = None
+        self.source_node_circle_id = None
 
     def create_window(self):
         self.geometry("780x700")
@@ -117,19 +118,20 @@ class Window(tk.Tk):
         print("Deleted graph.")
 
     def handle_motion(self, event):
-        node_circle_id = self.graph.find_node_in_radius(event.x, event.y)
+        if self.source_node_circle_id is None:
+            node_circle_id = self.graph.find_node_in_radius(event.x, event.y)
 
-        if node_circle_id >= 0:
-            if self.highlighted_node != node_circle_id:
+            if node_circle_id >= 0:
+                if self.highlighted_node != node_circle_id:
+                    if self.highlighted_node is not None:
+                        self.canvas.itemconfigure(self.highlighted_node, fill='white')
+
+                    self.canvas.itemconfigure(node_circle_id, fill='red')
+                    self.highlighted_node = node_circle_id
+            else:
                 if self.highlighted_node is not None:
                     self.canvas.itemconfigure(self.highlighted_node, fill='white')
-
-                self.canvas.itemconfigure(node_circle_id, fill='red')
-                self.highlighted_node = node_circle_id
-        else:
-            if self.highlighted_node is not None:
-                self.canvas.itemconfigure(self.highlighted_node, fill='white')
-                self.highlighted_node = None
+                    self.highlighted_node = None
 
     def draw_edge(self, dest_id):
         source_x, source_y = self.graph.find_node_by_id(self.source_node)
@@ -155,10 +157,14 @@ class Window(tk.Tk):
             if node_circle_id >= 0:
                 if self.source_node is None:
                     self.source_node = node_circle_id
+                    self.source_node_circle_id = node_circle_id
+                    self.canvas.itemconfigure(self.source_node_circle_id, fill='red')
                 else:
                     edge_id = self.draw_edge(node_circle_id)
                     self.graph.add_edge(self.source_node, node_circle_id, edge_id)
+                    self.canvas.itemconfigure(self.source_node_circle_id, fill='white')
                     self.source_node = None
+                    self.source_node_circle_id = None
 
 
 window = Window()
