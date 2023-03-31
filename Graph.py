@@ -14,6 +14,11 @@ class Graph:
         print(node)
 
     def add_edge(self, source_id, dest_id, edge_id):
+        for edge in self.edge_list:
+            if edge.source == source_id and edge.dest == dest_id:
+                return
+            if edge.dest == source_id and edge.source == dest_id:
+                pass
         source_node = None
         dest_node = None
         for node in self.node_list:
