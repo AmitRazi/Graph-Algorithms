@@ -57,7 +57,7 @@ class Window(tk.Tk):
     def create_canvas(self):
         self.canvas = tk.Canvas(self, bg="white", bd=5, relief='groove', width=500, height=500)
         self.canvas.grid(column=0, row=0, sticky='nsew')
-        self.canvas.bind('<Button-1>', self.handle_click)
+        self.canvas.bind('<Button-1>', self.handle_choosen_action)
         self.canvas.bind('<Motion>', self.handle_motion)
 
     def create_buttons(self):
@@ -138,7 +138,7 @@ class Window(tk.Tk):
         dest_x, dest_y = self.graph.find_node_by_id(dest_id)
         return self.canvas.create_line(source_x, source_y, dest_x, dest_y, fill='black', width=2)
 
-    def handle_click(self, event):
+    def handle_choosen_action(self, event):
         if self.active_action == "Add Node":
             circle_id = self.draw_node(event)
             self.graph.add_node(circle_id, event.x, event.y)
