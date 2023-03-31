@@ -65,8 +65,12 @@ class GAlgorithm:
                     if candidate_matching is None:
                         continue
                     self.color_path(candidate_matching,matching)
-                    new_matching = matching.union(candidate_matching)
+                    if len(candidate_matching) > len(matching):
+                        new_matching = candidate_matching.difference(candidate_matching.intersection(matching))
+                    else:
+                        new_matching = candidate_matching.union(matching)
                     matching = new_matching
+                    self._direct_graph(matching)
                     for edge in matching:
                         nodes_in_matching.add(edge.source)
                         nodes_in_matching.add(edge.dest)
@@ -111,8 +115,10 @@ class GAlgorithm:
 
             for neighbor in current_node.neighbors:
                 if neighbor not in visited:
-                    visited.add(neighbor)
                     edge = self.graph.find_edge(current_node.circle_id, neighbor.circle_id)
+                    if edge.dest is not neighbor:
+                        continue
+                    visited.add(neighbor)
                     new_path = path.copy()
                     new_path.add(edge)
                     queue.append((neighbor, new_path))
