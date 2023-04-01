@@ -69,6 +69,9 @@ class GAlgorithm:
                     for edge in matching:
                         if edge not in candidate_matching:
                             filered_matching.add(edge)
+                        else:
+                            nodes_in_matching.remove(edge.source)
+                            nodes_in_matching.remove(edge.dest)
 
                     candidate_matching = candidate_matching[::2]
                     candidate_matching_set = set(candidate_matching)
