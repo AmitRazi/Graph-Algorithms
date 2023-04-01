@@ -1,5 +1,7 @@
 import tkinter as tk
 import Graph
+from GraphEdge import Edge
+from typing import List, Set
 from GraphAlgorithms import GAlgorithm
 
 
@@ -70,11 +72,12 @@ class Window(tk.Tk):
         algo_button_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
         algo_button_frame.grid(column=0, row=1, columnspan=2, sticky='e')
 
-        bipartite_button = tk.Button(algo_button_frame, text="▶", font=('Arial',12),command=self.run_hungarian_algorithm)
+        bipartite_button = tk.Button(algo_button_frame, text="▶", font=('Arial', 12),
+                                     command=self.run_hungarian_algorithm)
         bipartite_button.grid(column=0, row=0, padx=2, pady=5, sticky='w')
 
-        self.delay_entry = tk.Entry(algo_button_frame,font=('Arial',12),bd=2, relief='groove', width=15)
-        self.delay_entry.insert(0,"Delay in seconds:")
+        self.delay_entry = tk.Entry(algo_button_frame, font=('Arial', 12), bd=2, relief='groove', width=15)
+        self.delay_entry.insert(0, "Delay in seconds:")
         self.delay_entry.bind("<Button-1>", self.handle_entry_click)
         self.delay_entry.grid(column=1, row=0, padx=2, pady=5, sticky='w')
 
@@ -119,8 +122,8 @@ class Window(tk.Tk):
     def handle_dedge_button(self):
         self.active_action = "Delete Edge"
 
-    def handle_entry_click(self,event):
-        self.delay_entry.delete(0,tk.END)
+    def handle_entry_click(self, event):
+        self.delay_entry.delete(0, tk.END)
 
     def clear_message_box(self):
         self.output_text.config(state=tk.NORMAL)
@@ -159,11 +162,21 @@ class Window(tk.Tk):
     def draw_edge(self, dest_id):
         source_x, source_y = self.graph.find_node_by_id(self.source_node)
         dest_x, dest_y = self.graph.find_node_by_id(dest_id)
+
         return self.canvas.create_line(source_x, source_y, dest_x, dest_y, fill='black', width=2)
 
     def color_edge(self, edge_id, color: str):
         self.canvas.itemconfigure(edge_id, fill=color)
         self.canvas.update()
+
+    def direct_graph(self, matching: Set[Edge], edge_list: List[Edge]):
+        for edge in edge_list:
+            coords = self.canvas.coords(edge.id)
+
+            if edge.source.x == coords[0]:
+                self.canvas.itemconfigure(edge.id, arrow=tk.LAST)
+            else:
+                self.canvas.itemconfigure(edge.id, arrow=tk.FIRST)
 
     def handle_choosen_action(self, event):
         if self.active_action == "Add Node":

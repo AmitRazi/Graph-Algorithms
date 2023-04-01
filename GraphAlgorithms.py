@@ -135,3 +135,5 @@ class GAlgorithm:
 
             elif edge.source.group == 'B':
                 edge.swap()
+
+        self.graph.direct_graph(matching)

@@ -1,6 +1,6 @@
 from GraphEdge import Edge
 from GraphNode import Node
-from typing import List
+from typing import List,Set
 
 class Graph:
     def __init__(self, gui):
@@ -80,3 +80,6 @@ class Graph:
 
     def color_edge(self,edge: Edge, color: str):
         self.gui.color_edge(edge.id,color)
+
+    def direct_graph(self,matching: Set[Edge]):
+        self.gui.direct_graph(matching,self.edge_list)
