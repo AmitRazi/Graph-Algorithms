@@ -64,12 +64,17 @@ class GAlgorithm:
                     candidate_matching = self.find_augmenting_path_bfs(node, group_b.difference(nodes_in_matching))
                     if candidate_matching is None:
                         continue
+
+                    filered_matching = set()
+                    for edge in matching:
+                        if edge not in candidate_matching:
+                            filered_matching.add(edge)
+
+                    candidate_matching = candidate_matching[::2]
+                    candidate_matching_set = set(candidate_matching)
+                    matching = filered_matching.union(candidate_matching_set)
                     self.color_path(candidate_matching,matching)
-                    if len(candidate_matching) > len(matching):
-                        new_matching = candidate_matching.difference(candidate_matching.intersection(matching))
-                    else:
-                        new_matching = candidate_matching.union(matching)
-                    matching = new_matching
+
                     self._direct_graph(matching)
                     for edge in matching:
                         nodes_in_matching.add(edge.source)
@@ -103,7 +108,7 @@ class GAlgorithm:
     def find_augmenting_path_bfs(self, node: Node, end_group: Set[Node]) -> Set:
         visited = set()
 
-        queue = [(node, set())]
+        queue = [(node, list())]
         visited.add(node)
 
         while queue:
@@ -120,7 +125,7 @@ class GAlgorithm:
                         continue
                     visited.add(neighbor)
                     new_path = path.copy()
-                    new_path.add(edge)
+                    new_path.append(edge)
                     queue.append((neighbor, new_path))
 
         return None
