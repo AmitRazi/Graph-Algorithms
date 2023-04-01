@@ -9,6 +9,7 @@ class Window(tk.Tk):
         self.create_window()
         self.canvas = None
         self.active_action = "Add Node"
+        self.delay_entry = None
         self.position_window()
         self.create_widgets()
         self.circles = []
@@ -69,9 +70,13 @@ class Window(tk.Tk):
         algo_button_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
         algo_button_frame.grid(column=0, row=1, columnspan=2, sticky='e')
 
-        bipartite_button = tk.Button(algo_button_frame, text="Validate Bipartite",
-                                     command=self.check_bipartite)
-        bipartite_button.grid(column=0, row=0, padx=5, pady=5, sticky='w')
+        bipartite_button = tk.Button(algo_button_frame, text="▶", font=('Arial',12),command=self.run_hungarian_algorithm)
+        bipartite_button.grid(column=0, row=0, padx=2, pady=5, sticky='w')
+
+        self.delay_entry = tk.Entry(algo_button_frame,font=('Arial',12),bd=2, relief='groove', width=15)
+        self.delay_entry.insert(0,"Delay in seconds:")
+        self.delay_entry.bind("<Button-1>", self.handle_entry_click)
+        self.delay_entry.grid(column=1, row=0, padx=2, pady=5, sticky='w')
 
         add_node_button = tk.Button(buttons_frame, text="Add Node", padx=5, pady=5, command=self.handle_inode_button)
         add_node_button.grid(column=0, row=0, padx=5)
@@ -90,8 +95,9 @@ class Window(tk.Tk):
         clear_button = tk.Button(buttons_frame, text="Clear", padx=5, pady=5, command=self.handle_clear_button)
         clear_button.grid(column=4, row=0, padx=5)
 
-    def check_bipartite(self):
-        is_bipartite = self.graph_algos.hungarian_algorithm()
+    def run_hungarian_algorithm(self):
+        delay = int(self.delay_entry.get())
+        is_bipartite = self.graph_algos.hungarian_algorithm(delay)
         print(is_bipartite)
         self.print_to_gui(f"Bipartite: {is_bipartite}")
 
@@ -112,6 +118,9 @@ class Window(tk.Tk):
 
     def handle_dedge_button(self):
         self.active_action = "Delete Edge"
+
+    def handle_entry_click(self,event):
+        self.delay_entry.delete(0,tk.END)
 
     def clear_message_box(self):
         self.output_text.config(state=tk.NORMAL)
@@ -152,7 +161,7 @@ class Window(tk.Tk):
         dest_x, dest_y = self.graph.find_node_by_id(dest_id)
         return self.canvas.create_line(source_x, source_y, dest_x, dest_y, fill='black', width=2)
 
-    def color_edge(self, edge_id,color:str):
+    def color_edge(self, edge_id, color: str):
         self.canvas.itemconfigure(edge_id, fill=color)
         self.canvas.update()
 

@@ -47,7 +47,7 @@ class GAlgorithm:
             else:
                 node.group = 'B'
 
-    def hungarian_algorithm(self):
+    def hungarian_algorithm(self,delay: int):
         if not self.is_bipartite():
             return False
 
@@ -74,7 +74,7 @@ class GAlgorithm:
                     for edge in matching:
                         nodes_in_matching.add(edge.source)
                         nodes_in_matching.add(edge.dest)
-                    time.sleep(4)
+                    time.sleep(delay)
                     flag = True
             if flag is False:
                 break
