@@ -8,8 +8,9 @@ class Graph:
         self.edge_list: List[Edge] = []
         self.gui = gui
 
-    def add_node(self, circle_id, x, y):
+    def add_node(self, circle_id, x, y, scale = 1.0):
         node = Node(x, y, circle_id)
+        node._radius = 20 * scale
         self.node_list.append(node)
         print(node)
 

@@ -10,11 +10,13 @@ class Window(tk.Tk):
         super().__init__()
         self.create_window()
         self.canvas = None
+        self.zoom_factor = 1.0
+        self.scale_factor = 1.0
+
         self.active_action = "Add Node"
         self.delay_entry = None
         self.position_window()
         self.create_widgets()
-        self.circles = []
         self.source_node = None
         self.output_text = self.create_output_text()
         self.graph = Graph.Graph(self)
@@ -64,6 +66,18 @@ class Window(tk.Tk):
         self.canvas.grid(column=0, row=0, sticky='nsew')
         self.canvas.bind('<Button-1>', self.handle_choosen_action)
         self.canvas.bind('<Motion>', self.handle_motion)
+        # self.canvas.bind("<B1-Motion>", self.move_canvas)
+
+        x_scrollbar = tk.Scrollbar(self, orient=tk.HORIZONTAL)
+        x_scrollbar.grid(column=0, row=1, sticky='ew')
+        y_scrollbar = tk.Scrollbar(self, orient=tk.VERTICAL)
+        y_scrollbar.grid(column=1, row=0, sticky='ns')
+
+        self.canvas.config(xscrollcommand=x_scrollbar.set, yscrollcommand=y_scrollbar.set)
+        x_scrollbar.config(command=self.canvas.xview)
+        y_scrollbar.config(command=self.canvas.yview)
+
+        self.canvas.bind("<MouseWheel>", self.zoom)
 
     def create_buttons(self):
         buttons_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
@@ -98,6 +112,30 @@ class Window(tk.Tk):
         clear_button = tk.Button(buttons_frame, text="Clear", padx=5, pady=5, command=self.handle_clear_button)
         clear_button.grid(column=4, row=0, padx=5)
 
+    def zoom(self, event):
+        self.scale_factor *= 1.1 if event.delta > 0 else 0.9
+        self.zoom_factor = 1.1 if event.delta > 0 else 0.9
+        self.canvas.scale("all", event.x, event.y, self.zoom_factor, self.zoom_factor)
+
+        # update node
+        for node in self.graph.node_list:
+            node.x *= self.zoom_factor
+            node.y *= self.zoom_factor 
+            node._radius *= self.zoom_factor
+            self.canvas.coords(node.circle_id, node.x - node.radius, node.y - node.radius, node.x + node.radius, node.y + node.radius)
+    
+    # def move_canvas(self, event):
+    #     pass
+    #     if event.state == 256: # Space key
+    #         self.canvas.scan_dragto(event.x, event.y, gain=1)
+
+    #         for node in self.graph.node_list:
+    #     #     x, y = self.canvas.coords(node.circle_id)
+    #     #     x = (x - event.x) * self.zoom_factor + event.x
+    #     #     y = (y - event.y) * self.zoom_factor + event.y
+    #         # self.canvas.coords(node.circle_id, node.x - 20 * self.zoom_factor, node.y - 20 * self.zoom_factor, node.x + 20 * self.zoom_factor, node.y + 20 * self.zoom_factor)
+    #             self.canvas.coords(node.circle_id, node.x - 20, node.y - 20, node.x + 20, node.y + 20)
+
     def run_hungarian_algorithm(self):
         delay = int(self.delay_entry.get())
         is_bipartite = self.graph_algos.hungarian_algorithm(delay)
@@ -107,7 +145,10 @@ class Window(tk.Tk):
     def draw_node(self, event):
         x = event.x
         y = event.y
-        circle_id = self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, outline='black', width=2, fill='white')
+
+        # circle_id = self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, outline='black', width=2, fill='white')
+        circle_id = self.canvas.create_oval(x - 20*self.scale_factor, y - 20*self.scale_factor, x + 20*self.scale_factor, y + 20*self.scale_factor, outline='black', width=2, fill='white')
+        
         return circle_id
 
     def handle_inode_button(self):
@@ -181,7 +222,7 @@ class Window(tk.Tk):
     def handle_choosen_action(self, event):
         if self.active_action == "Add Node":
             circle_id = self.draw_node(event)
-            self.graph.add_node(circle_id, event.x, event.y)
+            self.graph.add_node(circle_id, event.x, event.y, self.scale_factor)
 
         elif self.active_action == "Delete Node":
             id_to_delete = self.graph.find_node_in_radius(event.x, event.y)
