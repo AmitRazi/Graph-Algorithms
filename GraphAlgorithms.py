@@ -73,11 +73,12 @@ class GAlgorithm:
                             nodes_in_matching.remove(edge.source)
                             nodes_in_matching.remove(edge.dest)
 
+                    self.color_path(candidate_matching,matching)
+                    time.sleep(delay)
                     candidate_matching = candidate_matching[::2]
                     candidate_matching_set = set(candidate_matching)
                     matching = filered_matching.union(candidate_matching_set)
-                    self.color_path(candidate_matching,matching)
-
+                    self.color_matching(matching)
                     self._direct_graph(matching)
                     for edge in matching:
                         nodes_in_matching.add(edge.source)
@@ -114,12 +115,16 @@ class GAlgorithm:
         queue = [(node, list())]
         visited.add(node)
 
+        max_path = []
+        max_length = 0
+
         while queue:
             current_node, path = queue.pop(0)
 
             for node in end_group:
-                if node == current_node:
-                    return path
+                if len(path) > max_length:
+                    max_path = path
+                    max_length = len(path)
 
             for neighbor in current_node.neighbors:
                 if neighbor not in visited:
@@ -131,7 +136,9 @@ class GAlgorithm:
                     new_path.append(edge)
                     queue.append((neighbor, new_path))
 
-        return None
+        if not max_path:
+            return None;
+        return max_path
 
     def _direct_graph(self, matching: Set[Edge]):
         edge_list: List[Edge] = self.graph.edge_list
