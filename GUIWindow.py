@@ -68,9 +68,6 @@ class Window(tk.Tk):
         self.canvas.bind('<Button-1>', self.handle_choosen_action)
         self.canvas.bind('<Motion>', self.handle_motion)
 
-        self.canvas.bind('<Button-3>', self.handle_canvas_drag_start)
-        # self.canvas.bind('<B3-Motion>', self.handle_canvas_drag)
-
         x_scrollbar = tk.Scrollbar(self, orient=tk.HORIZONTAL)
         x_scrollbar.grid(column=0, row=1, sticky='ew')
         y_scrollbar = tk.Scrollbar(self, orient=tk.VERTICAL)
@@ -120,43 +117,12 @@ class Window(tk.Tk):
         self.zoom_factor = 1.1 if event.delta > 0 else 0.9
         self.zoom_center = event.x, event.y
 
-        # Redraw the nodes and edges with the updated coordinates
         for node in self.graph.node_list:
             node.x = (node.x - self.zoom_center[0]) * self.zoom_factor + self.zoom_center[0]
             node.y = (node.y - self.zoom_center[1]) * self.zoom_factor + self.zoom_center[1]
             node._radius *= self.zoom_factor
 
         self.canvas.scale("all", event.x, event.y, self.zoom_factor, self.zoom_factor)
-    
-    def handle_canvas_drag_start(self, event):
-        self.canvas_dragging = True
-        self.canvas_x = event.x
-        self.canvas_y = event.y
-
-    def handle_canvas_drag(self, event):
-        if self.canvas_dragging:
-            delta_x = event.x - self.canvas_x
-            delta_y = event.y - self.canvas_y
-            self.canvas_x = event.x
-            self.canvas_y = event.y
-            self.canvas.move('all', delta_x, delta_y)
-
-    # def move_canvas(self, event):
-    #     pass
-    #     if event.state == 256: # Space key
-    #         self.canvas.scan_dragto(event.x, event.y, gain=1)
-
-    #         for node in self.graph.node_list:
-    #             node.x *= self.zoom_factor
-    #             node.y *= self.zoom_factor 
-    #             node._radius *= self.zoom_factor
-    #             self.canvas.coords(node.circle_id, node.x - node.radius, node.y - node.radius, node.x + node.radius, node.y + node.radius)
-    #     #     for node in self.graph.node_list:
-    #     # #     x, y = self.canvas.coords(node.circle_id)
-    #     # #     x = (x - event.x) * self.zoom_factor + event.x
-    #     # #     y = (y - event.y) * self.zoom_factor + event.y
-    #     #     # self.canvas.coords(node.circle_id, node.x - 20 * self.zoom_factor, node.y - 20 * self.zoom_factor, node.x + 20 * self.zoom_factor, node.y + 20 * self.zoom_factor)
-    #     #         self.canvas.coords(node.circle_id, node.x - 20, node.y - 20, node.x + 20, node.y + 20)
 
     def run_hungarian_algorithm(self):
         delay = int(self.delay_entry.get())
@@ -168,7 +134,6 @@ class Window(tk.Tk):
         x = event.x
         y = event.y
 
-        # circle_id = self.canvas.create_oval(x - 20, y - 20, x + 20, y + 20, outline='black', width=2, fill='white')
         circle_id = self.canvas.create_oval(x - 20*self.scale_factor, y - 20*self.scale_factor, x + 20*self.scale_factor, y + 20*self.scale_factor, outline='black', width=2, fill='white')
         
         return circle_id
