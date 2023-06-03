@@ -1,5 +1,6 @@
 from GraphNode import Node
 
+
 class Edge:
     def __init__(self, source_node: Node, dest_node: Node, edge_id: int):
         self._source = source_node

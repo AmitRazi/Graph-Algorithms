@@ -2,48 +2,48 @@ import tkinter as tk
 import Graph
 from GraphEdge import Edge
 from typing import List, Set
-from GraphAlgorithms import GAlgorithm
+import GraphAlgorithms
 
 
 class Window(tk.Tk):
-    def __init__(self):
+    def __init__(self, title):
         super().__init__()
-        self.create_window()
+        self.create_window(title)
         self.canvas = None
         self.zoom_center = None
         self.zoom_factor = 1.0
         self.scale_factor = 1.0
-
         self.active_action = "Add Node"
         self.delay_entry = None
+        self.algorithm = title
         self.position_window()
         self.create_widgets()
         self.source_node = None
         self.output_text = self.create_output_text()
         self.graph = Graph.Graph(self)
-        self.graph_algos = GAlgorithm(self.graph)
+        self.graph_algos = GraphAlgorithms.GAlgorithm(self.graph)
         self.highlighted_node = None
         self.source_node_circle_id = None
 
-    def create_window(self):
+    def create_window(self, title):
         self.geometry("780x700")
-        self.title("Hungarian Method")
+        self.title(title)
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=0)
 
-    def create_output_text(self):  # New function
+    def create_output_text(self):
         output_text = tk.Text(self, wrap=tk.WORD, height=10, padx=5, pady=5, relief='sunken')
         output_text.grid(column=0, row=2, sticky='nsew')
         output_text.insert(tk.END, "Messages:\n")
-        output_text.config(state=tk.DISABLED)  # Make the text widget read-only
+        output_text.config(state=tk.DISABLED)
         return output_text
 
     def print_to_gui(self, message):
-        self.output_text.config(state=tk.NORMAL)  # Enable editing
-        self.output_text.insert(tk.END, message + "\n")  # Append the message
-        self.output_text.config(state=tk.DISABLED)  # Disable editing
-        self.output_text.see(tk.END)  # Scroll to the end
+        self.output_text.config(state=tk.NORMAL)
+        self.output_text.insert(tk.END, message + "\n")
+        self.output_text.config(state=tk.DISABLED)
+        self.output_text.see(tk.END)
 
     def position_window(self):
         window_width = 780
@@ -65,18 +65,8 @@ class Window(tk.Tk):
     def create_canvas(self):
         self.canvas = tk.Canvas(self, bg="white", bd=5, relief='groove', width=500, height=500)
         self.canvas.grid(column=0, row=0, sticky='nsew')
-        self.canvas.bind('<Button-1>', self.handle_choosen_action)
+        self.canvas.bind('<Button-1>', self.handle_chosen_action)
         self.canvas.bind('<Motion>', self.handle_motion)
-
-        x_scrollbar = tk.Scrollbar(self, orient=tk.HORIZONTAL)
-        x_scrollbar.grid(column=0, row=1, sticky='ew')
-        y_scrollbar = tk.Scrollbar(self, orient=tk.VERTICAL)
-        y_scrollbar.grid(column=1, row=0, sticky='ns')
-
-        self.canvas.config(xscrollcommand=x_scrollbar.set, yscrollcommand=y_scrollbar.set)
-        x_scrollbar.config(command=self.canvas.xview)
-        y_scrollbar.config(command=self.canvas.yview)
-
         self.canvas.bind("<MouseWheel>", self.zoom)
 
     def create_buttons(self):
@@ -130,12 +120,17 @@ class Window(tk.Tk):
         print(is_bipartite)
         self.print_to_gui(f"Bipartite: {is_bipartite}")
 
+    def run_brooks_algorithm(self):
+        GraphAlgorithms.brooks_algorithm(self.graph)
+
     def draw_node(self, event):
         x = event.x
         y = event.y
 
-        circle_id = self.canvas.create_oval(x - 20*self.scale_factor, y - 20*self.scale_factor, x + 20*self.scale_factor, y + 20*self.scale_factor, outline='black', width=2, fill='white')
-        
+        circle_id = self.canvas.create_oval(x - 20 * self.scale_factor, y - 20 * self.scale_factor,
+                                            x + 20 * self.scale_factor, y + 20 * self.scale_factor, outline='black',
+                                            width=2, fill='white')
+
         return circle_id
 
     def handle_inode_button(self):
@@ -206,10 +201,12 @@ class Window(tk.Tk):
             else:
                 self.canvas.itemconfigure(edge.id, arrow=tk.FIRST)
 
-    def handle_choosen_action(self, event):
+    def handle_chosen_action(self, event):
         if self.active_action == "Add Node":
-            circle_id = self.draw_node(event)
-            self.graph.add_node(circle_id, event.x, event.y, self.scale_factor)
+            node_circle_id = self.graph.find_node_in_radius(event.x, event.y)
+            if node_circle_id < 0:
+                circle_id = self.draw_node(event)
+                self.graph.add_node(circle_id, event.x, event.y, self.scale_factor)
 
         elif self.active_action == "Delete Node":
             id_to_delete = self.graph.find_node_in_radius(event.x, event.y)
@@ -235,5 +232,42 @@ class Window(tk.Tk):
                     self.source_node_circle_id = None
 
 
-window = Window()
-window.mainloop()
+class LauncherWindow(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Algorithm Launcher")
+        self.create_buttons()
+        self.position_window()
+
+    def position_window(self):
+        window_width = 200
+        window_height = 100
+
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        x_coordinate = int((screen_width / 2) - (window_width / 2))
+        y_coordinate = int((screen_height / 2) - (window_height / 2))
+
+        self.geometry(f"+{x_coordinate}+{y_coordinate}")
+
+    def create_buttons(self):
+        hungarian_button = tk.Button(self, text="Hungarian Algorithm", command=self.open_hungarian_window)
+        hungarian_button.pack(padx=20, pady=10)
+
+        brooks_button = tk.Button(self, text="Brooks Algorithm", command=self.open_brooks_window)
+        brooks_button.pack(padx=20, pady=10)
+
+    def open_hungarian_window(self):
+        self.destroy()
+        window = Window("Hungarian Algorithm")  # Assuming Window is the class for Hungarian Algorithm
+        window.mainloop()
+
+    def open_brooks_window(self):
+        self.destroy()
+        brooks_window = Window("Brooks Algorithm")  # Assuming BrooksWindow is the class for Brooks Algorithm
+        brooks_window.mainloop()
+
+
+launcher_window = LauncherWindow()
+launcher_window.mainloop()

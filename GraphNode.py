@@ -12,12 +12,10 @@ class Node:
         self.neighbors.append(neighbor)
 
     def remove_neighbor(self,neighbor):
-        print("removing")
         self.neighbors.remove(neighbor)
 
     def inform_neighbors(self):
         for node in self.neighbors:
-            print("informing")
             node.remove_neighbor(self)
 
     @property
