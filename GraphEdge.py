@@ -37,4 +37,4 @@ class Edge:
         self.dest = temp
 
     def __str__(self):
-        return f"{self.source, self.dest}"
+        return f"{self.source.__str__(), self.dest.__str__()}"

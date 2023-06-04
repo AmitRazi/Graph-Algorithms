@@ -76,9 +76,14 @@ class Window(tk.Tk):
         algo_button_frame = tk.Frame(self, padx=5, pady=5, relief='sunken')
         algo_button_frame.grid(column=0, row=1, columnspan=2, sticky='e')
 
-        bipartite_button = tk.Button(algo_button_frame, text="▶", font=('Arial', 12),
-                                     command=self.run_hungarian_algorithm)
-        bipartite_button.grid(column=0, row=0, padx=2, pady=5, sticky='w')
+        if self.algorithm == 'Brooks Algorithm':
+            play_button = tk.Button(algo_button_frame, text="▶", font=('Arial', 12),
+                                    command=self.run_brooks_algorithm)
+            play_button.grid(column=0, row=0, padx=2, pady=5, sticky='w')
+        else:
+            play_button = tk.Button(algo_button_frame, text="▶", font=('Arial', 12),
+                                    command=self.run_hungarian_algorithm)
+            play_button.grid(column=0, row=0, padx=2, pady=5, sticky='w')
 
         self.delay_entry = tk.Entry(algo_button_frame, font=('Arial', 12), bd=2, relief='groove', width=15)
         self.delay_entry.insert(0, "Delay in seconds:")
@@ -121,7 +126,8 @@ class Window(tk.Tk):
         self.print_to_gui(f"Bipartite: {is_bipartite}")
 
     def run_brooks_algorithm(self):
-        GraphAlgorithms.brooks_algorithm(self.graph)
+        delay = int(self.delay_entry.get())
+        self.graph_algos.brooks_algorithm(self.graph,delay)
 
     def draw_node(self, event):
         x = event.x
@@ -191,6 +197,13 @@ class Window(tk.Tk):
     def color_edge(self, edge_id, color: str):
         self.canvas.itemconfigure(edge_id, fill=color)
         self.canvas.update()
+
+    def color_node(self, node_id, color: str):
+        self.canvas.itemconfigure(node_id, fill=color)
+        self.canvas.update()
+
+    def color_node_outline(self,node_id,color:str):
+        self.canvas.itemconfigure(node_id, outline=color, width=2)
 
     def direct_graph(self, matching: Set[Edge], edge_list: List[Edge]):
         for edge in edge_list:

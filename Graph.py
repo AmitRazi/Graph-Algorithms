@@ -1,6 +1,7 @@
 from GraphEdge import Edge
 from GraphNode import Node
-from typing import List,Set
+from typing import List, Set
+
 
 class Graph:
     def __init__(self, gui):
@@ -8,7 +9,7 @@ class Graph:
         self.edge_list: List[Edge] = []
         self.gui = gui
 
-    def add_node(self, circle_id, x, y, scale = 1.0):
+    def add_node(self, circle_id, x, y, scale=1.0):
         node = Node(x, y, circle_id)
         node._radius = 20 * scale
         self.node_list.append(node)
@@ -16,7 +17,8 @@ class Graph:
 
     def add_edge(self, source_id, dest_id, edge_id):
         for edge in self.edge_list:
-            if (edge.source == source_id and edge.dest == dest_id) or (edge.dest == source_id and edge.source == dest_id):
+            if (edge.source == source_id and edge.dest == dest_id) or (
+                    edge.dest == source_id and edge.source == dest_id):
                 return
         source_node = None
         dest_node = None
@@ -74,13 +76,20 @@ class Graph:
                 return node_id
         return -1
 
-    def find_edge(self,source_id,dest_id):
+    def find_edge(self, source_id, dest_id):
         for edge in self.edge_list:
-            if edge.source.circle_id == source_id and edge.dest.circle_id == dest_id or edge.dest.circle_id == source_id and edge.source.circle_id == dest_id:
+            if (edge.source.circle_id == source_id and edge.dest.circle_id == dest_id) or (
+                    edge.dest.circle_id == source_id and edge.source.circle_id == dest_id):
                 return edge
 
-    def color_edge(self,edge: Edge, color: str):
-        self.gui.color_edge(edge.id,color)
+    def color_edge(self, edge: Edge, color: str):
+        self.gui.color_edge(edge.id, color)
 
-    def direct_graph(self,matching: Set[Edge]):
-        self.gui.direct_graph(matching,self.edge_list)
+    def color_node(self, node: Node, color: str):
+        self.gui.color_node(node.circle_id, color)
+
+    def color_node_outline(self, node: Node, color: str):
+        self.gui.color_node_outline(node.circle_id, color)
+
+    def direct_graph(self, matching: Set[Edge]):
+        self.gui.direct_graph(matching, self.edge_list)
