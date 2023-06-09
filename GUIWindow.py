@@ -122,7 +122,6 @@ class Window(tk.Tk):
     def run_hungarian_algorithm(self):
         delay = int(self.delay_entry.get())
         is_bipartite = self.graph_algos.hungarian_algorithm(delay)
-        print(is_bipartite)
         self.print_to_gui(f"Bipartite: {is_bipartite}")
 
     def run_brooks_algorithm(self):
@@ -189,8 +188,8 @@ class Window(tk.Tk):
                     self.highlighted_node = None
 
     def draw_edge(self, dest_id):
-        source_x, source_y = self.graph.find_node_by_id(self.source_node)
-        dest_x, dest_y = self.graph.find_node_by_id(dest_id)
+        source_x, source_y = self.graph.find_node_by_id_coords(self.source_node)
+        dest_x, dest_y = self.graph.find_node_by_id_coords(dest_id)
 
         return self.canvas.create_line(source_x, source_y, dest_x, dest_y, fill='black', width=2)
 
