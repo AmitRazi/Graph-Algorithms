@@ -84,8 +84,10 @@ class GAlgorithm:
         """
         # Ensure the graph is bipartite before processing
         if not self.is_bipartite():
+            self.graph.print_in_gui("The graph is not bipartite, the algorithm can not run.")
             return False
 
+        self.graph.print_in_gui("The graph is bipartite, the algorithm can run.")
         # Initialize data structures
         node_list: List[Node] = self.graph.node_list
         group_b = {node for node in node_list if node.group == 'B'}
@@ -484,6 +486,7 @@ class GAlgorithm:
 
         # If the min degree is less than the max degree, color using BFS starting from the node with min degree
         if len(min_degree.neighbors) < len(max_degree.neighbors):
+            self.graph.print_in_gui("Case 1: the graph is not k-regular. Running the greedy coloring algorithm.")
             spanning_tree = self.bfs_spanning_tree(min_degree)[::-1]
             self.greedy_coloring(spanning_tree, delay)
             return
@@ -491,10 +494,13 @@ class GAlgorithm:
         # Find a cut vertex if it exists
         cut_vertex = self.tarjan_algorithm_cut_vertex(graph.node_list)
         if cut_vertex is not None:  # If there is a cut vertex
+            self.graph.print_in_gui("Case 2: The graph is k-regular and has a cut vertex marked in red.")
             self.graph.color_node(cut_vertex, "Red")  # Color the cut vertex
             components = self.connected_components(
                 cut_vertex)  # Find the connected components after removing the cut vertex
             # Create spanning trees for each component and color them using the greedy algorithm
+            self.graph.print_in_gui("Creating a spanning tree rooted in the cut vertex for the two connected components of the graph.")
+
             spanning_tree_1 = self.component_spanning_tree(components[0], cut_vertex, delay)[::-1]
             spanning_tree_2 = self.component_spanning_tree(components[1], cut_vertex, delay)[::-1]
             self.greedy_coloring(spanning_tree_1, delay)
@@ -504,6 +510,9 @@ class GAlgorithm:
             return
 
         # If there is no cut vertex,find a triad of vertices such that two are unconnected
+        self.graph.print_in_gui("Case 3: The graph is k-regular and does not have a cut vertex.")
+        self.graph.print_in_gui("Finding three vertices x,y,z such that two are unconnected. The vertices are marked on the graph by different colored outlines.")
+
         x, y, z = self.find_triad(graph)
         spanning_tree = self.triad_bfs(graph.node_list, x, y, z, delay)[::-1]
         self.greedy_coloring(spanning_tree, delay)
