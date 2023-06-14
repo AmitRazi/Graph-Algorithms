@@ -1,3 +1,4 @@
+
 from GraphEdge import Edge
 from GraphNode import Node
 from typing import List, Set
@@ -20,19 +21,19 @@ class Graph:
         self.edge_list: List[Edge] = []  # List of all edges in the graph
         self.gui = gui  # Graphical user interface for visualizing the graph
 
-    def find_node_by_id_coords(self, target_id):
+    def find_node_by_id_coords(self, target_id: int) -> tuple[float, float] | None:
         for node in self.node_list:
             if node.circle_id == target_id:
                 return node.x, node.y
         return None
 
-    def find_node_by_id(self, target_id):
+    def find_node_by_id(self, target_id: int) -> Node | None:
         for node in self.node_list:
             if node.circle_id == target_id:
                 return node
         return None
 
-    def add_node(self, circle_id, x, y, scale=1.0):
+    def add_node(self, circle_id: int, x: float, y: float, scale=1.0):
         """
         Adds a new node to the graph.
 
@@ -45,7 +46,7 @@ class Graph:
         node._radius = 20 * scale  # Set radius of the node according to scale
         self.node_list.append(node)  # Add node to the list of nodes
 
-    def add_edge(self, source_id, dest_id, edge_id):
+    def add_edge(self, source_id: int, dest_id: int, edge_id: int):
         """
         Adds an edge between two nodes in the graph.
 
@@ -81,7 +82,7 @@ class Graph:
         edge = Edge(source_node, dest_node, edge_id)
         self.edge_list.append(edge)
 
-    def delete_node(self, node_id: Node):
+    def delete_node(self, node_id: Node) -> List[int] | None:
         """
         Deletes a node from the graph, along with any edges connected to it.
 
@@ -133,7 +134,7 @@ class Graph:
                     self.gui.canvas.delete(edge)
         self.print_in_gui("Delete graph")
 
-    def find_node_in_radius(self, x, y):
+    def find_node_in_radius(self, x: float, y: float) -> int:
         """
         Finds a node within a specified radius.
 
@@ -150,7 +151,7 @@ class Graph:
         # No node was found within the radius
         return -1
 
-    def find_edge(self, source_id, dest_id):
+    def find_edge(self, source_id: int, dest_id: int) -> Edge:
         """
         Finds an edge between two nodes.
 

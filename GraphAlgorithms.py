@@ -1,7 +1,7 @@
 from GraphNode import Node
 import Graph
 from GraphEdge import Edge
-from typing import Dict, Set, List
+from typing import Dict, Set, List, Any
 import time
 
 
@@ -10,8 +10,7 @@ class GAlgorithm:
     def __init__(self, graph):
         self.graph = graph
 
-    # Checks if a graph is bipartite using Breadth-first search
-    def is_bipartite(self):
+    def is_bipartite(self) -> bool:
         """
         Checks whether a graph is bipartite. A graph is bipartite if its nodes can be divided
         into two groups such that all edges go from a node in one group to a node in the other group.
@@ -34,7 +33,6 @@ class GAlgorithm:
         self._tag(node_colors)
         return True
 
-    # Color the nodes and its neighbors in BFS fashion. If found a neighbor with the same color, return False.
     def _bfs_coloring(self, node: Node, node_colors: Dict[Node, int]) -> bool:
         """
         Colors nodes in BFS fashion, alternating between two colors. If a neighbor has the same color,
@@ -59,7 +57,6 @@ class GAlgorithm:
                     return False
         return True
 
-    # Tag the nodes with 'A' or 'B' based on the color assigned
     def _tag(self, node_colors: Dict[Node, int]):
         """
         Tags the nodes with 'A' or 'B' based on the color assigned. This forms the two groups of a bipartite graph.
@@ -72,7 +69,7 @@ class GAlgorithm:
             else:
                 node.group = 'B'
 
-    def hungarian_algorithm(self, delay: int):
+    def hungarian_algorithm(self, delay: int) -> bool:
         """
         Executes the Hungarian Algorithm which is also known as Kuhn-Munkres Algorithm.
         It is used to find the maximum matching in a bipartite graph which in turn helps
@@ -80,7 +77,7 @@ class GAlgorithm:
         for the assignment problem.
 
         :param delay: Time delay (in seconds) between operations for better visualization.
-        :return: True if the graph is bipartite, False otherwise.
+        :return: True if the graph is bipartite and the algorithm succeeds, False otherwise.
         """
         # Ensure the graph is bipartite before processing
         if not self.is_bipartite():
@@ -116,7 +113,7 @@ class GAlgorithm:
                             nodes_in_matching.remove(edge.dest)
 
                     # Update the matching with the augmenting path
-                    self.color_path(candidate_matching, matching)
+                    self.color_path(set(candidate_matching), matching)
                     time.sleep(delay)
                     candidate_matching = set(candidate_matching[::2])
                     matching = filtered.union(candidate_matching)
@@ -152,20 +149,16 @@ class GAlgorithm:
         Black: Edges not in the augmenting path or the matching.
         """
         for edge in self.graph.edge_list:
-            # If edge is in the path but not in the matching, color it blue
             if edge in path and edge not in matching:
                 self.graph.color_edge(edge, 'blue')
-            # If edge is in both the path and the matching, color it yellow
             elif edge in matching and edge in path:
                 self.graph.color_edge(edge, 'yellow')
-            # If edge is in the matching but not in the path, color it red
             elif edge in matching and edge not in path:
                 self.graph.color_edge(edge, 'red')
-            # Else color it black
             else:
                 self.graph.color_edge(edge, 'black')
 
-    def find_augmenting_path_bfs(self, node: Node, end_group: Set[Node]):
+    def find_augmenting_path_bfs(self, node: Node, end_group: Set[Node]) -> list[Any] | None:
         """
         Breadth-first search (BFS) to find an augmenting path from a node in group A to a node in group B
         which is not currently part of the matching.
@@ -229,7 +222,7 @@ class GAlgorithm:
         # Direct the graph using the matching
         self.graph.direct_graph(matching)
 
-    def bfs_spanning_tree(self, node: Node):
+    def bfs_spanning_tree(self, node: Node) -> List[Node]:
         """
         Creates a spanning tree using a breadth-first search (BFS) starting from a given node.
         """
@@ -254,17 +247,17 @@ class GAlgorithm:
         # Return list of visited vertices, forming a spanning tree
         return vertices_list
 
-    def max_min_degree(self, graph: Graph):
+    def max_min_degree(self, node_list: List[Node]) -> tuple[Node, Node]:
         """
         Returns the nodes with the maximum and minimum degrees in the graph.
         """
         # Initialize min, max degree and corresponding nodes
-        min_degree = len(graph.node_list[0].neighbors)
-        max_degree = len(graph.node_list[0].neighbors)
-        min_node = graph.node_list[0]
-        max_node = graph.node_list[0]
+        min_degree = len(node_list[0].neighbors)
+        max_degree = len(node_list[0].neighbors)
+        min_node = node_list[0]
+        max_node = node_list[0]
         # Loop over all nodes in graph
-        for node in graph.node_list:
+        for node in node_list:
             neighborhood = len(node.neighbors)
             # If node's degree is smaller than current min, update min and min_node
             if neighborhood < min_degree:
@@ -286,6 +279,35 @@ class GAlgorithm:
         g = (index * 100) % 256
         b = (index * 150) % 256
         return '#%02x%02x%02x' % (r, g, b)
+
+    def is_odd_cycle(self, graph: Graph) -> bool:
+        """
+        Checks if the graph is an odd cycle.
+        """
+
+        if all(len(node.neighbors) == 2 for node in graph.node_list):
+            start_node = graph.node_list[0]
+            visited = set()
+            cycle_length = 1
+
+            while start_node not in visited:
+                visited.add(start_node)
+                next_nodes = list(set(start_node.neighbors) - visited)
+
+                if not next_nodes:  # If all neighbors have been visited, break the loop
+                    break
+
+                start_node = next_nodes[0]  # Otherwise, visit the next unvisited node
+                cycle_length += 1
+
+            return cycle_length % 2 == 1
+
+        return False
+
+    def is_complete_graph(self, graph: Graph) -> bool:
+        total_nodes = len(graph.node_list)
+
+        return all(len(node.neighbors) == total_nodes - 1 for node in graph.node_list)
 
     def greedy_coloring(self, vertices_list: List[Node], delay: int):
         """
@@ -313,8 +335,37 @@ class GAlgorithm:
                     self.graph.color_node(v, tkinter_color)  # Apply the color
             time.sleep(delay)  # Sleep for the defined delay
 
+    def greedy_coloring2(self, vertices_list: List[Node],vertex_cut: Node, delay: int):
+        """
+        Applies the greedy coloring algorithm to the graph.
+        It colors the vertices in the order they appear in the vertices list.
+        """
+        max_color_index = 0
+        for v in vertices_list:
+            if v.color == -1:  # If the vertex is not colored yet
+                available_colors = set(range(max_color_index + 1))  # Define the available colors
+
+                for neighbor in v.neighbors:  # Check the neighbors of the vertex
+                    if neighbor.color in available_colors:  # If a color is used by a neighbor, remove it from the available colors
+                        available_colors.remove(neighbor.color)
+
+                if not available_colors:  # If no colors are available
+                    max_color_index = max_color_index + 1  # Add a new color
+                    v.color = max_color_index  # Assign the new color to the vertex
+                    if v != vertex_cut:
+                        tkinter_color = self.index_to_rgb(max_color_index)  # Convert the color to tkinter color
+                        self.graph.color_node(v, tkinter_color)  # Apply the color
+                else:  # If there are available colors
+                    min_available_color_index = min(available_colors)  # Choose the smallest color
+                    v.color = min_available_color_index  # Assign the color to the vertex
+                    if v != vertex_cut:
+                        tkinter_color = self.index_to_rgb(min_available_color_index)  # Convert the color to tkinter color
+                        self.graph.color_node(v, tkinter_color)  # Apply the color
+
+            time.sleep(delay)  # Sleep for the defined delay
+
     def dfs_vertex_cut(self, v: Node, discovery: Dict[Node, int], low: Dict[Node, int], parent: Dict[Node, Node],
-                       articulation_point: Dict[Node, bool], vertex_list: List[Node], time_: int):
+                       articulation_point: Dict[Node, bool], vertex_list: List[Node], time_: int) -> int:
         """
         Applies Depth-first Search (DFS) to find cut vertices (also known as articulation points) in the graph.
         """
@@ -330,11 +381,9 @@ class GAlgorithm:
                 low[v] = min(low[v],
                              low[u])  # Check if the subtree rooted with u has a connection to one of the ancestors of v
 
-                if parent[
-                    v] is None and children > 1:  # If v is not root and low value of one of its child is more than discovery value of v
+                if parent[v] is None and children > 1:  # If v is not root and low value of one of its child is more than discovery value of v
                     articulation_point[v] = True
-                elif parent[v] is not None and low[u] >= discovery[
-                    v]:  # If v is not root and low value of one of its child is more than discovery value of v
+                elif parent[v] is not None and low[u] >= discovery[v]:  # If v is not root and low value of one of its child is more than discovery value of v
                     articulation_point[v] = True
 
             elif u != parent[v]:  # Update low value of v for parent function calls.
@@ -342,7 +391,7 @@ class GAlgorithm:
 
         return time_
 
-    def tarjan_algorithm_cut_vertex(self, vertex_list: List[Node]):
+    def tarjan_algorithm_cut_vertex(self, vertex_list: List[Node]) -> Any | None:
         """
         Implements Tarjan's algorithm to find cut vertices in the graph.
         """
@@ -361,7 +410,7 @@ class GAlgorithm:
                 return node
         return None
 
-    def connected_components(self, cut_vertex: Node):
+    def connected_components(self, cut_vertex: Node) -> List[List[Node]]:
         """
         Returns the connected components of the graph after removing a cut vertex.
         """
@@ -388,7 +437,7 @@ class GAlgorithm:
 
         return components
 
-    def component_spanning_tree(self, component_vertex_list: List[Node], cut_vertex: Node, delay: int):
+    def component_spanning_tree(self, component_vertex_list: List[Node], cut_vertex: Node, delay: int) -> List[Node]:
         """
         Creates a spanning tree for each connected component in the graph after removing a cut vertex.
         """
@@ -416,16 +465,28 @@ class GAlgorithm:
         """
         Combines the colorings of the two connected components at the cut vertex.
         """
-        # If both spanning trees start with the same color, no need to combine coloring
-        if spanning_tree_1[0].color == spanning_tree_2[0].color:
-            return
 
-        # Change color of the node in the first tree that matches the color of the root of the second tree
-        for node in spanning_tree_1:
-            if node.color == spanning_tree_2[0].color and node in spanning_tree_2[0].neighbors:
-                node.color, spanning_tree_2[0].color = spanning_tree_2[0].color, node.color
+        # Determine the set of colors already used in the neighbors of the cut vertex in the first tree
+        colors_in_spanning_tree_1 = set(
+            neighbor.color for neighbor in cut_vertex.neighbors if neighbor in spanning_tree_1)
 
-    def find_triad(self, graph: Graph):
+        # Determine the set of colors already used in the neighbors of the cut vertex in the second tree
+        colors_in_spanning_tree_2 = set(
+            neighbor.color for neighbor in cut_vertex.neighbors if neighbor in spanning_tree_2)
+
+        # Determine the set of all colors used in the graph
+        all_colors = set(node.color for node in self.graph.node_list)
+
+        # Determine the set of available colors for the cut_vertex
+        available_colors = all_colors - colors_in_spanning_tree_1 - colors_in_spanning_tree_2
+
+        # if there is an available color
+        cut_vertex.color = next(iter(available_colors))  # color the cut_vertex with an available color
+
+        tkinter_color = self.index_to_rgb(cut_vertex.color)  # Convert the color to tkinter color
+        self.graph.color_node(cut_vertex, tkinter_color)  # Apply the color
+
+    def find_triad(self, graph: Graph) -> tuple[Node, Node, Node]:
         """
         Finds a triad in the graph - three nodes where two of them are connected to a common node but not to each other.
         """
@@ -439,7 +500,7 @@ class GAlgorithm:
                         self.graph.color_node_outline(z, "Yellow")
                         return x, y, z  # Return the nodes of the triad
 
-    def triad_bfs(self, vertex_list: List[Node], x: Node, y: Node, z: Node, delay: int):
+    def triad_bfs(self, x: Node, y: Node, z: Node, delay: int) -> List[Node]:
         """
         Creates a spanning tree that includes a given triad using a breadth-first search (BFS).
         """
@@ -482,7 +543,15 @@ class GAlgorithm:
         The theorem states that every connected graph with maximum degree 'd' can be colored with 'd' colors.
         Exceptions: complete graphs and odd cycles.
         """
-        max_degree, min_degree = self.max_min_degree(graph)  # Get the node with max and min degrees
+        # Check if the graph is an odd cycle or a complete graph
+        if self.is_odd_cycle(graph):
+            self.graph.print_in_gui("The graph is an odd cycle. Cannot apply Brooks' theorem.")
+            return
+        if self.is_complete_graph(graph):
+            self.graph.print_in_gui("The graph is a complete graph. Cannot apply Brooks' theorem.")
+            return
+
+        max_degree, min_degree = self.max_min_degree(graph.node_list)  # Get the node with max and min degrees
 
         # If the min degree is less than the max degree, color using BFS starting from the node with min degree
         if len(min_degree.neighbors) < len(max_degree.neighbors):
@@ -491,7 +560,7 @@ class GAlgorithm:
             self.greedy_coloring(spanning_tree, delay)
             return
 
-        # Find a cut vertex if it exists
+        # Otherwise, find a cut vertex if it exists
         cut_vertex = self.tarjan_algorithm_cut_vertex(graph.node_list)
         if cut_vertex is not None:  # If there is a cut vertex
             self.graph.print_in_gui("Case 2: The graph is k-regular and has a cut vertex marked in red.")
@@ -499,20 +568,26 @@ class GAlgorithm:
             components = self.connected_components(
                 cut_vertex)  # Find the connected components after removing the cut vertex
             # Create spanning trees for each component and color them using the greedy algorithm
-            self.graph.print_in_gui("Creating a spanning tree rooted in the cut vertex for the two connected components of the graph.")
+            self.graph.print_in_gui(
+                "Creating a spanning tree rooted in the cut vertex for the two connected components of the graph.")
 
             spanning_tree_1 = self.component_spanning_tree(components[0], cut_vertex, delay)[::-1]
             spanning_tree_2 = self.component_spanning_tree(components[1], cut_vertex, delay)[::-1]
-            self.greedy_coloring(spanning_tree_1, delay)
-            self.greedy_coloring(spanning_tree_2, delay)
+            self.greedy_coloring2(spanning_tree_1,cut_vertex, delay)
+            self.greedy_coloring2(spanning_tree_2, cut_vertex, delay)
             self.combine_coloring(spanning_tree_1, spanning_tree_2,
                                   cut_vertex)  # Combine the colorings at the cut vertex
             return
 
-        # If there is no cut vertex,find a triad of vertices such that two are unconnected
+        # Otherwise, if the graph is 2-colorable, just apply greedy coloring
+        if len(max_degree.neighbors) == 2:
+            self.greedy_coloring(graph.node_list, delay)
+            return
+        # Finally, if there is no cut vertex ,find a triad of vertices such that two are unconnected
         self.graph.print_in_gui("Case 3: The graph is k-regular and does not have a cut vertex.")
-        self.graph.print_in_gui("Finding three vertices x,y,z such that two are unconnected. The vertices are marked on the graph by different colored outlines.")
+        self.graph.print_in_gui(
+            "Finding three vertices x,y,z such that two are unconnected. The vertices are marked on the graph by different colored outlines.")
 
         x, y, z = self.find_triad(graph)
-        spanning_tree = self.triad_bfs(graph.node_list, x, y, z, delay)[::-1]
+        spanning_tree = self.triad_bfs(x, y, z, delay)[::-1]
         self.greedy_coloring(spanning_tree, delay)

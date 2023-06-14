@@ -1,7 +1,7 @@
 import tkinter as tk
 import Graph
 from GraphEdge import Edge
-from typing import List, Set
+from typing import List
 import GraphAlgorithms
 
 
@@ -26,7 +26,7 @@ class Window(tk.Tk):
         self.highlighted_node = None  # The node that is currently highlighted
         self.source_node_circle_id = None
 
-    def create_window(self, title):
+    def create_window(self, title: str):
         self.geometry("780x700")
         self.title(title)
         self.columnconfigure(0, weight=1)
@@ -40,7 +40,7 @@ class Window(tk.Tk):
         output_text.config(state=tk.DISABLED)
         return output_text
 
-    def print_to_gui(self, message):
+    def print_to_gui(self, message: str):
         self.output_text.config(state=tk.NORMAL)
         self.output_text.insert(tk.END, message + "\n")
         self.output_text.config(state=tk.DISABLED)
@@ -125,11 +125,11 @@ class Window(tk.Tk):
 
     def run_hungarian_algorithm(self):
         delay = int(self.delay_entry.get())
-        is_bipartite = self.graph_algos.hungarian_algorithm(delay)
+        self.graph_algos.hungarian_algorithm(delay)
 
     def run_brooks_algorithm(self):
         delay = int(self.delay_entry.get())
-        self.graph_algos.brooks_algorithm(self.graph,delay)
+        self.graph_algos.brooks_algorithm(self.graph, delay)
 
     def draw_node(self, event):
         x = event.x
@@ -153,7 +153,7 @@ class Window(tk.Tk):
     def handle_dedge_button(self):
         self.active_action = "Delete Edge"
 
-    def handle_entry_click(self, event):
+    def handle_entry_click(self,event):
         self.delay_entry.delete(0, tk.END)
 
     def clear_message_box(self):
@@ -187,7 +187,9 @@ class Window(tk.Tk):
                     if self.highlighted_node is not None:
                         # change the color of the currently highlighted node back to white
                         self.canvas.itemconfigure(self.highlighted_node, fill='white')
-
+                if self.canvas.itemcget(node_circle_id, "fill") != "white":
+                    return
+                else:
                     # change the color of the new node to red to highlight it
                     self.canvas.itemconfigure(node_circle_id, fill='red')
                     # update the currently highlighted node
@@ -200,24 +202,24 @@ class Window(tk.Tk):
                     # remove the reference to the highlighted node since there is none now
                     self.highlighted_node = None
 
-    def draw_edge(self, dest_id):
+    def draw_edge(self, dest_id: int):
         source_x, source_y = self.graph.find_node_by_id_coords(self.source_node)
         dest_x, dest_y = self.graph.find_node_by_id_coords(dest_id)
 
         return self.canvas.create_line(source_x, source_y, dest_x, dest_y, fill='black', width=2)
 
-    def color_edge(self, edge_id, color: str):
+    def color_edge(self, edge_id: int, color: str):
         self.canvas.itemconfigure(edge_id, fill=color)
         self.canvas.update()
 
-    def color_node(self, node_id, color: str):
+    def color_node(self, node_id: int, color: str):
         self.canvas.itemconfigure(node_id, fill=color)
         self.canvas.update()
 
-    def color_node_outline(self,node_id,color:str):
+    def color_node_outline(self, node_id: int, color: str):
         self.canvas.itemconfigure(node_id, outline=color, width=2)
 
-    def direct_graph(self, matching: Set[Edge], edge_list: List[Edge]):
+    def direct_graph(self, edge_list: List[Edge]):
         for edge in edge_list:
             coords = self.canvas.coords(edge.id)
 
@@ -276,6 +278,7 @@ class Window(tk.Tk):
                     # Reset the source node as none
                     self.source_node = None
                     self.source_node_circle_id = None
+
 
 class LauncherWindow(tk.Tk):
     def __init__(self):
